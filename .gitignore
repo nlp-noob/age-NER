@@ -3,3 +3,6 @@ data/
 curves/
 tmp_trainer/
 test-ner/
+best_model/
+badcases_train/
+curves_train/

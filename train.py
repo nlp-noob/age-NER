@@ -98,7 +98,6 @@ class CustomTrainer(Trainer):
     draw_curve_or_not = None
     curve_save_dir = None
     save_curve_step = None
-    token_level_PR_content = None
     token_level_PR_auc = None
     token_level_AUC = None
     # To save best model for some specific evaluation value
@@ -406,7 +405,6 @@ class CustomTrainer(Trainer):
         if self.draw_curve_or_not:
             self.draw_the_curve(all_preds, all_labels)
         # 添加曲线的参数
-        metrics["PR_content"] = self.token_level_PR_content
         metrics["PR_auc"] = self.token_level_PR_auc
         metrics["ROC_auc"] = self.token_level_AUC
 
@@ -554,7 +552,6 @@ class CustomTrainer(Trainer):
                 continue
             else:
                 pr_content+=(precision[index] + precision[index-1])*abs(recall[index] -recall[index-1])/2
-        self.token_level_PR_content = pr_content
         self.token_level_PR_auc = self._sort_for_pr_auc(precision, recall)
         
         # token_ROC
@@ -914,8 +911,8 @@ def _merge_lines(lines):
     return result
 
 def _get_labels(data):
-    pre_tag = "B-PER"
-    cen_tag = "I-PER"
+    pre_tag = "B-DATE"
+    cen_tag = "I-DATE"
     for item in data:
         order = item["order"]
         my_label_list = item["label"]
@@ -1060,7 +1057,7 @@ def main():
             dataset_dict["train"] = get_my_dataset(data_args.train_file, custom_args.input_window_size)
             # check data
             # for i, labels in enumerate(dataset_dict["train"]["ner_tags"]):
-                # if "B-PER" in labels:
+                # if "B-DATE" in labels:
                 #     print(dataset_dict["train"]["ner_tags"][i])
                 #     print(dataset_dict["train"]["tokens"][i])
                 #     import pdb; pdb.set_trace()
@@ -1331,7 +1328,7 @@ def main():
             for a_label in a_line_labels:
                 # 因为这个是模型的预测结果，不会再进行id映射，定义一个任意的label告诉metrics这是单独的片段即可
                 if a_label!="O":
-                    a_label="B-PER"
+                    a_label="I-DATE"
                 flattened_labels.append([a_label])
         return flattened_labels
 

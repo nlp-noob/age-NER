@@ -18,6 +18,7 @@ class CustomArguments:
                 "choose from below:"
                 "{raw_to_json} : extract the input file in a way to the json dataset to the out put file."
                 "{tagging_empty} : tag the data by terminal."
+                "{split_raw_data} : To split raw data in to the training piece and the valid piece by specifying the path."
                 "{split_data_to_htmls} : split the tagged data to htmls files for filter."
                 "{tag_with_specific_indexs} : by using indexs in a file to specific location in data. to fix the data."
                 )
@@ -35,6 +36,18 @@ class CustomArguments:
         default=None,
         metadata={"help": "You have to specify the file to be tagged in the mode of tagging."},
     )
+    raw_data_path: str = field(
+        default=None,
+        metadata={"help": "You have to specify the file to be tagged in the mode of tagging."},
+    )
+    splitted_train_data_path: str = field(
+        default=None,
+        metadata={"help": "You have to specify the file to be tagged in the mode of tagging."},
+    ) 
+    splitted_valid_data_path: str = field(
+        default=None,
+        metadata={"help": "You have to specify the file to be tagged in the mode of tagging."},
+    ) 
 
     
 def main():
@@ -52,13 +65,15 @@ def main():
             print("write success")
         else:
             raise ValueError("you haven't specify the input file or out put file yet, plz fix it in data.sh")
-
     elif custom_args.mode == "tagging_empty":
         if custom_args.file_to_be_tagged is not None:
             terminal_tagging(custom_args.file_to_be_tagged)
             print("write success")
         else:
             raise ValueError("you haven't specify the file to be tagged yet, plz fix it in data.sh")
+    elif custom_args.mode == "split_raw_data":
+        pass
+
         
         
 

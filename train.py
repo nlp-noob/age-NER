@@ -899,6 +899,14 @@ class CustomArguments:
             )
         },
     )
+    use_augmented_data: bool = field(
+        default=False,
+        metadata={
+            "help": (
+                "If you use the auged data, you shoud set this args to true."
+            )
+        },
+    )
     def __post_init__(self):
         if self.use_padding_for_context is None:
             raise ValueError("You should specify whether to use tje padding for label to context or not.")
@@ -938,7 +946,7 @@ def _get_labels(data):
             item["flat_label"].append(label_flattened)
     return data
 
-def get_my_dataset(path, window_size):
+def get_my_dataset(path, window_size, use_augmented_data=False):
     # init data:
     with open(path, "r") as fin:
         data = json.loads(fin.read())
@@ -948,6 +956,9 @@ def get_my_dataset(path, window_size):
     input_dict = {"tokens": [] , "labels": [], "bottom_len":[]}
     for order in data:
         for line_index in range(len(order["order"])):
+            # is use_augmented_data is true, the input is already formed in the data file
+            if use_augmented_data and line_index != (len(order["order"])-1):
+                continue
             is_user = order["order"][line_index][0]
             if is_user:
                 temp_tokens = [order["flat_order"][line_index]]
@@ -1054,7 +1065,8 @@ def main():
         dataset_dict = {}
         if data_args.train_file is not None:
             # data_files["train"] = data_args.train_file
-            dataset_dict["train"] = get_my_dataset(data_args.train_file, custom_args.input_window_size)
+            if custom_args.use_augmented_data:
+                dataset_dict["train"] = get_my_dataset(data_args.train_file, custom_args.input_window_size, use_augmented_data=True)
             # check data
             # for i, labels in enumerate(dataset_dict["train"]["ner_tags"]):
                 # if "B-DATE" in labels:

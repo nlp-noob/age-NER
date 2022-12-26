@@ -4,7 +4,8 @@ python train.py \
     --do_train True \
     --do_eval True \
     --overwrite_output_dir True \
-    --train_file ./data/train_data/train_data0000.json \
+    --use_augmented_data True \
+    --train_file ./data/train_data/augmented_win4_dens4_train_data0000.json \
     --validation_file ./data/valid_data/valid_data0000.json \
     --num_train_epochs 4 \
     --logging_first_step True \

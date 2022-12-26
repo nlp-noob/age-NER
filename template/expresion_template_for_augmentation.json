@@ -1,0 +1,67 @@
+{
+  "date_templates":
+    [
+      ["Dob", "is", "{}"],
+      ["Date", "of", "birth", "is", "{}"],
+      ["birthday", "is", "{}"],
+      ["birthday", "is", "{}"],
+      ["DOB", "{}"],
+      ["dob", "{}"],
+      ["DOB", "is", "{}"],
+      ["Dob", "is", "{}"],
+      ["{}"]
+    ],
+  "date_formats":
+    [
+      [1,0,2,0,3],
+      [2,0,3,0,1],
+      [0,1,0,2,0,3,0],
+      [0,2,0,3,0,1,0],
+      [0,2,0,3,0,1,0]
+    ],
+  "age_templates":
+    [
+      ["I", "'", "m","{}", "years", "old"],
+      ["I", "'", "m", "{}"],
+      ["My", "age", "is", "{}"],
+      ["{}"]
+    ],
+  "age_formats":
+    [
+      [1],
+      [4]
+    ],
+  "punctuations":
+    [
+      "-",
+      ".",
+      ",",
+      ":",
+      "/"
+    ],
+  "year_range":
+    [1960, 2010],
+  "moth_list":
+    [
+      "1", "2", 3, "4", "5", "6", "7", "8", "9", "10", "11", "12", "01", "02", "03", "04", "05", "06", "07", "08",
+      "09", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November",
+      "December", "Jan", "JAN", "Feb", "FEB", "Mar", "MAR", "Apr", "APR", "MAY", "Jun", "JUN", "Jul", "JUL", "aug", "Sept",
+      "Oct", "OCT", "Nov", "NOV", "Dec", "DEC"
+    ],
+  "help":
+    [
+      "This is a template file for the labeled words exchange augmentation process.",
+      "1.the data_templates key: for the text level exchange. pure data expresion.",
+      "2.the data_format: for the format of the date",
+      "3.the age_templates: for the text level exchange. pure age or year expresion.",
+      "4.the age_format: for the format of the age",
+      "The meaning of the number in the formats:",
+      "     0 -- the punctuations place.",
+      "     1 -- the years place.",
+      "     2 -- the month place.",
+      "     3 -- the day place.",
+      "     4 -- the age place.",
+      "5.the punctuations: the possible punctuation to be exchanged in the punctuations place of data format:",
+      "year range: the range of the possible year to exchange in."
+    ]
+}

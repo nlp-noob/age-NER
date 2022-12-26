@@ -6,6 +6,7 @@ from transformers import (
     HfArgumentParser,
 )
 
+hl_format = "\033[7m{}\033[0m"
 
 
 @dataclass
@@ -116,9 +117,26 @@ def aug_data(args):
                 all_words_data.append(copy.deepcopy(a_data))
             else:
                 maybe_have_pre_data.append(copy.deepcopy(a_data))
+    # view the data
+    for a_data in maybe_have_pre_data:
+        flatten_label = []
+        bottom_line = []
+        splitted_words = a_data["order"][-1][1].split(" ")
+        label = a_data["label"][-1]
+        for a_label in label:
+            flatten_label.extend(a_label)
+        for a_word_index, a_word in enumerate(splitted_words):
+            if a_word_index in flatten_label:
+                a_word = hl_format.format(a_word)
+            bottom_line.append(a_word)
+        print(" ".join(bottom_line), end="")
+        input("")
+            
+
 
     # augment the all words line:
     for a_data in all_words_data:
+        pass
         
         
             

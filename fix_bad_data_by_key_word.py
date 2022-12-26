@@ -5,12 +5,13 @@ import readline
 KEYWORDS_LIST = ["DOB", "dob", "Jan", "Feb", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"]
 check_mode = "direct"
 # by bad_cases / by direct
-DATA_PATH = "./data/big_json/pretaggedtrain.json"
-OUTPUT_PATH = "./data/big_json/pretaggedtrain_fixxed.json"
+DATA_PATH = "./data/large_json/pretaggedempty.json"
+OUTPUT_PATH = "./data/large_json/pretaggedempty_fixxed.json"
+SELECTED_OUT_PATH = "./data/large_json/selected_data.json"
 BADCASE_FILE = "badcases_train/dslim_bert-large-NER_win3_cosine/bad_case_for_step_00002400.txt"
 FORBIDDEN_WORDS = ["er", "ke"]
 hl_format = "\033[7m{}\033[0m"
-save_every_step = 50
+save_every_step = 200
 
 def number_words_in_sentence(sentence, label):
     word_list = sentence.split()
@@ -149,6 +150,7 @@ def main():
         bad_words_line_indexs = get_indexs_for_data_check(data_to_fix)
 
     quit_flag = False
+    selected_order_indexs = []
     # show and fix the bad word index
     now_step = 0
     for bad_fix_progress, bad_word_index in enumerate(bad_words_line_indexs):
@@ -211,13 +213,34 @@ def main():
         if quit_flag:
             break
         else:
+            # change done
+            if data_to_fix[order_index]["label"][line_index] != label_fix and order_index not in selected_order_indexs:
+                # save the selected order for augmentetion
+                selected_order_indexs.append(order_index)
             data_to_fix[order_index]["label"][line_index] = label_fix
         if now_step % save_every_step == 0:
+            selected_data_for_aug = []
+            for selected_index in selected_order_indexs:
+                selected_data_for_aug.append(data_to_fix[selected_index])
+            json_str_aug = json.dumps(selected_data_for_aug, indent=2)
+            with open(SELECTED_OUT_PATH, "w") as sfout:
+                sfout.write(json_str_aug)
+                print("File has been saved to the path: {}".format(SELECTED_OUT_PATH))
+                sfout.close()
             json_str = json.dumps(data_to_fix, indent=2)
             with open(OUTPUT_PATH, "w") as fout:
                 fout.write(json_str)
                 print("File has been saved to the path: {}".format(OUTPUT_PATH))
                 fout.close()
+    import pdb;pdb.set_trace()
+    selected_data_for_aug = []
+    for selected_index in selected_order_indexs:
+        selected_data_for_aug.append(data_to_fix[selected_index])
+    json_str_aug = json.dumps(selected_data_for_aug, indent=2)
+    with open(SELECTED_OUT_PATH, "w") as sfout:
+        sfout.write(json_str_aug)
+        print("File has been saved to the path: {}".format(SELECTED_OUT_PATH))
+        sfout.close()
     json_str = json.dumps(data_to_fix, indent=2)
     with open(OUTPUT_PATH, "w") as fout:
         fout.write(json_str)

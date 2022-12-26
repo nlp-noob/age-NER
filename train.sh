@@ -6,10 +6,10 @@ python train.py \
     --overwrite_output_dir True \
     --train_file ./data/train_data/train_data0000.json \
     --validation_file ./data/valid_data/valid_data0000.json \
-    --num_train_epochs 3 \
+    --num_train_epochs 4 \
     --logging_first_step True \
-    --logging_steps 50 \
-    --eval_steps 50 \
+    --logging_steps 200 \
+    --eval_steps 200 \
     --evaluation_strategy "steps" \
     --per_device_train_batch_size 2 \
     --fp16_full_eval True \
@@ -23,8 +23,8 @@ python train.py \
     --write_badcases True \
     --badcases_dir ./badcases_train \
     --lr_scheduler_type cosine \
-    --warmup_ratio 0.15 \
-    --input_window_size 3 \
+    --warmup_ratio 0.20 \
+    --input_window_size 4 \
     --draw_curve_or_not True \
     --curve_save_dir ./curves_train \
     --gradient_accumulation_steps 2 \
@@ -33,7 +33,7 @@ python train.py \
     --save_steps 800000 \
     --best_model_dir ./best_model \
     --save_my_best_model_or_not True \
-    --best_metrics_keys_list "PR_auc,ROC_auc,token_level_PER_f1,token_level_PER_recall,token_level_PER_precision" \
+    --best_metrics_keys_list "PR_auc,ROC_auc,token_level_DATE_f1,token_level_DATE_recall,token_level_DATE_precision" \
     --max_seq_length 150 \
     --use_special_tokens_or_not False \
     --special_tokens_list "[USER],[ADVISOR]" \

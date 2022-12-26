@@ -2,7 +2,7 @@ LABEL_ALL_TOKENS: True
 SLIDING_WIN_SIZE: 4
 HAVE_PRE: False
 MODEL_PATH: Jean-Baptiste/camembert-ner-with-dates
-DATA_FILE_PATH: eval_data/eval_data.json
+DATA_FILE_PATH: data/valid_data/valid_data0000.json
 PRE_LABEL: B-DATE
 CEN_LABEL: I-DATE
 DEFAULT_LABEL: I-DATE

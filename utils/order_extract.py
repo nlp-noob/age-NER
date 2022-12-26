@@ -7,7 +7,73 @@ pair_line = "==================== pair:"
 order_line = "-------------------- order:"
 new_line_symbol = " "
 order_price_line = "\t order_price"
+filter_chinese = True
 generate_empty_label = True
+
+def catch_chinese_in_a_text(text):
+    for s in text.encode('utf-8').decode('utf-8'):
+        if u'\u4e00' <= s <= u'\u9fff':
+            return True
+    return False
+
+def filter_chinese_order(orders):
+    filtered_orders = []
+    for order in orders:
+        order_have_chinese = False
+        for line in order["order"]:
+            text = line[1]
+            if catch_chinese_in_a_text(text):
+                order_have_chinese = True
+                break
+        if order_have_chinese:
+            filter_or_not = False
+            while(True):
+                print(order["order"])
+                choose_order = input("Please input y/n to decide whether to filter the order:")
+                if choose_order.isalpha():
+                    if choose_order == "y":
+                        filter_or_not = True
+                        break
+                    elif choose_order == "n":
+                        filter_or_not = False
+                        break
+                    else:
+                        print("wrong input!!")
+                else:
+                    print("wrong input!!")
+            if not filter_or_not:
+                filtered_orders.append(order)
+        else:
+            filtered_orders.append(order)
+    print("**"*20)
+    print("the origin len of the orders is: {}".format(len(orders)))
+    print("the len of the filtered orders is: {}".format(len(filtered_orders)))
+
+    return filtered_orders
+
+
+def format_fin(lines):
+    new_lines = [] 
+    # record the last line
+    last_line = ""
+    for line in lines:
+        if line == "\n" or line == " \n":
+            continue
+        if catch_text_compile.match(line):
+            new_lines.append(line)
+        elif(pair_line not in line and
+             order_line not in line and
+             order_price_line not in line and
+             catch_text_compile.match(last_line)):
+            sentence = re.findall("\t.*\t(.*)\t:(.*)", last_line)
+            if len(sentence) == 0:
+                new_lines[-1] = new_lines[-1][:-1] + line
+            else:
+                new_lines[-1] = new_lines[-1][:-1] + " " + line
+        else:
+            new_lines.append(line)
+        last_line = line
+    return new_lines
 
 
 def get_labels_in_line(label_list, line_index):
@@ -16,6 +82,7 @@ def get_labels_in_line(label_list, line_index):
         if label[0]-1 == line_index:
             label_in_line.append(label[1:])
     return label_in_line
+
 
 def split_alnum_word(word):
     pieces_list = []
@@ -38,25 +105,27 @@ def split_alnum_word(word):
         pieces_list.append(special_piece)
     return pieces_list
 
+
 def split_special_word(word):
+    # 特殊字符需要进行全部分割
     pieces_list = []
-    a_piece = ""
-    special_piece = ""
+    a_normal_piece = ""
+    special_pieces = []
     for a_char in word:
         if a_char.isalnum():
-            if special_piece:
-                pieces_list.append(special_piece)
-                special_piece = ""
-            a_piece += a_char
+            if special_pieces:
+                pieces_list.extend(special_pieces)
+                special_pieces = []
+            a_normal_piece += a_char
         else:
-            if a_piece:
-                pieces_list.append(a_piece)
-                a_piece = ""
-            special_piece += a_char
-    if a_piece:
-        pieces_list.append(a_piece)
-    if special_piece:
-        pieces_list.append(special_piece)
+            if a_normal_piece:
+                pieces_list.append(a_normal_piece)
+                a_normal_piece = ""
+            special_pieces.append(a_char)
+    if a_normal_piece:
+        pieces_list.append(a_normal_piece)
+    if len(special_pieces) > 0:
+        pieces_list.extend(special_pieces)
     return pieces_list
     
 
@@ -158,7 +227,11 @@ def extract_data(input_raw_data, output_raw_data):
             byte_name_list.append(name.encode())
     label_list = []
     with open(input_raw_data, 'r') as fin:
-        orders = get_data(fin, label_list, name_list, byte_name_list)
+        lines = fin.readlines()
+        new_lines = format_fin(lines)
+        orders = get_data(new_lines, label_list, name_list, byte_name_list)
+        if filter_chinese:
+            orders = filter_chinese_order(orders)
     json_str = json.dumps(orders, indent=2)
     with open(output_raw_data, "w") as jf: 
         jf.write(json_str)

@@ -42,6 +42,15 @@ class PreTagger:
                 if not order["order"][sentence_index][0]:
                     order["label"].append([])
                     continue
+                else:
+                    head_text_check = "[USER]"
+                    tail_text_check = order["order"][sentence_index][1].strip()
+                    check_input_text = head_text_check + " " + tail_text_check
+                    check_word_ids = self.tokenizer(check_input_text, add_special_tokens = False, return_tensors="pt").word_ids()
+                    if len(check_word_ids) >= 500:
+                        order["label"].append([])
+                        continue
+
                 head_text = "[USER]"
                 tail_text = order["order"][sentence_index][1].strip()
                 input_list = [" ".join([head_text, tail_text])]
@@ -57,7 +66,7 @@ class PreTagger:
                     input_list.append(" ".join([head_text_win,tail_text_win]))
                     check_input_text = " ".join(input_list)
                     check_word_ids = self.tokenizer(check_input_text, add_special_tokens = False, return_tensors="pt").word_ids()
-                    if len(check_word_ids) >= 512:
+                    if len(check_word_ids) >= 500:
                         del(input_list[-1])
                         break
                 input_list.reverse()
@@ -218,10 +227,10 @@ class PreTagger:
 
 def main():
     pretag_model = [
-                    "Jean-Baptiste/camembert-ner-with-dates",
+                    "./best_model/Jean-Baptiste_camembert-ner-with-dates_win4_cosine/PR_auc_best.model",
                    ]
-    data_path = "data/big_json/train.json"
-    dir_path = "data/big_json/"
+    data_path = "data/large_json/empty.json"
+    dir_path = "data/large_json/"
     pretagger = PreTagger(pretag_model[0], data_path, dir_path)
     for model_path in pretag_model:
         pretagger.change_model(model_path)

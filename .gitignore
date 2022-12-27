@@ -6,3 +6,4 @@ test-ner/
 best_model/
 badcases_train/
 curves_train/
+aug-ner/

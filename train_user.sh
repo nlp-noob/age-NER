@@ -1,5 +1,5 @@
-python train.py \
-    --model_name_or_path Jean-Baptiste/camembert-ner-with-dates \
+python train_user.py \
+    --model_name_or_path model_for_user_train/per_best_model0001 \
     --output_dir ./test-ner \
     --do_train True \
     --do_eval True \
@@ -32,7 +32,7 @@ python train.py \
     --save_curve_step 200 \
     --save_strategy "steps" \
     --save_steps 800000 \
-    --best_model_dir ./best_model \
+    --best_model_dir ./best_model_user \
     --save_my_best_model_or_not True \
     --best_metrics_keys_list "PR_auc,ROC_auc,token_level_DATE_f1,token_level_DATE_recall,token_level_DATE_precision" \
     --max_seq_length 150 \

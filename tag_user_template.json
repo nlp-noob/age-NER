@@ -1,0 +1,27 @@
+{
+  "head_template": [
+    "mine is",
+    "my DOB",
+    "my dob",
+    "my Dob",
+    "My DOB",
+    "My Dob",
+    "My dob",
+    "Mine is",
+    "your name and date of birth",
+    "Let me know about your date of birth",
+    "My name is",
+    "can I have your name and birthday",
+    "Can I please have ur name and dob",
+    "my name is",
+    "What is your birthday what is the other person \u2018 s birthday",
+    "your full name and date of birth please",
+    "Send me your date of birth please",
+    "Send me your date of birth",
+    "What is your birthday"
+  ],
+  "tail_template": [
+    "is mine",
+    "is Mine"
+  ]
+}

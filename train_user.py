@@ -919,8 +919,13 @@ def _merge_lines(lines):
     return result
 
 def _get_labels(data):
-    pre_tag = "B-DATE"
-    cen_tag = "I-DATE"
+    pre_tag = "B-USER"
+    cen_tag = "I-USER"
+    pre_tag_user = "B-OTHER"
+    cen_tag_user = "I-OTHER"
+    # pre_tag = "B-DATE"
+    # cen_tag = "I-DATE"
+    user_tag = ""
     for item in data:
         order = item["order"]
         my_label_list = item["label"]
@@ -944,6 +949,7 @@ def _get_labels(data):
                     tag_index = label[label_index] + 1
                     label_flattened[tag_index] = tag
             item["flat_label"].append(label_flattened)
+        import pdb;pdb.set_trace()
     return data
 
 def get_my_dataset(path, window_size, use_augmented_data=False):

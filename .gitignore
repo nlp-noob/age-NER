@@ -7,3 +7,5 @@ best_model/
 badcases_train/
 curves_train/
 aug-ner/
+model_for_user_train/
+best_model_user/

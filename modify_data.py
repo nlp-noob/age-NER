@@ -96,6 +96,8 @@ def split_tagged_data_to_train_valid(data, ratio, user_label_distri_dict):
             train_data.append(data[index])
         for index in valid_indexs:
             valid_data.append(data[index])
+    random.shuffle(train_data)
+    random.shuffle(valid_data)
     return train_data, valid_data
 
 

@@ -9,3 +9,5 @@ curves_train/
 aug-ner/
 model_for_user_train/
 best_model_user/
+data_user/
+user-ner/

@@ -919,10 +919,10 @@ def _merge_lines(lines):
     return result
 
 def _get_labels(data):
-    pre_tag = "B-USER"
-    cen_tag = "I-USER"
-    pre_tag_user = "B-OTHER"
-    cen_tag_user = "I-OTHER"
+    pre_tag = "B-OTHER"
+    cen_tag = "I-OTHER"
+    pre_tag_user = "B-USER"
+    cen_tag_user = "I-USER"
     # pre_tag = "B-DATE"
     # cen_tag = "I-DATE"
     user_tag = ""
@@ -949,7 +949,25 @@ def _get_labels(data):
                     tag_index = label[label_index] + 1
                     label_flattened[tag_index] = tag
             item["flat_label"].append(label_flattened)
-        import pdb;pdb.set_trace()
+        # change the label to USER
+        tagging_flag = False
+        now_label_index = -1
+        user_index = item["user_index"]
+        for line_index, line_labels in enumerate(item["flat_label"]):
+            for label_index, label in enumerate(line_labels):
+                if label != "O":
+                    tagging_flag = True
+                else:
+                    tagging_flag = False
+
+                if label == pre_tag:
+                    now_label_index += 1
+
+                if now_label_index == user_index and tagging_flag:
+                    if label == pre_tag:
+                        item["flat_label"][line_index][label_index] = pre_tag_user
+                    elif label == cen_tag:
+                        item["flat_label"][line_index][label_index] = cen_tag_user
     return data
 
 def get_my_dataset(path, window_size, use_augmented_data=False):
@@ -1079,7 +1097,8 @@ def main():
                 #     print(dataset_dict["train"]["ner_tags"][i])
                 #     print(dataset_dict["train"]["tokens"][i])
                 #     import pdb; pdb.set_trace()
-            
+            else:
+                dataset_dict["train"] = get_my_dataset(data_args.train_file, custom_args.input_window_size, use_augmented_data=False)
         if data_args.validation_file is not None:
             # data_files["validation"] = data_args.validation_file
             dataset_dict["validation"] = get_my_dataset(data_args.validation_file, custom_args.input_window_size)
@@ -1340,13 +1359,13 @@ def main():
     # Metrics
     metric = evaluate.load("seqeval")
 
-    def _split_into_word_list(labels):
+    def _split_into_word_list(labels, split_target):
         flattened_labels = []
         for a_line_labels in labels:
             for a_label in a_line_labels:
                 # 因为这个是模型的预测结果，不会再进行id映射，定义一个任意的label告诉metrics这是单独的片段即可
-                if a_label!="O":
-                    a_label="I-DATE"
+                if split_target in a_label:
+                    a_label="I-" + split_target
                 flattened_labels.append([a_label])
         return flattened_labels
 
@@ -1368,15 +1387,30 @@ def main():
             for prediction, label in zip(predictions, labels)
         ]
 
+        # stat the ratio of USER right
+        labeled_cnt = 0
+        right_cnt = 0
+        for true_label_line, true_prediction_line in  zip(true_labels, true_predictions):
+            for label_t, label_p in zip(true_label_line, true_prediction_line):
+                if label_t != "O":
+                    labeled_cnt += 1
+                if label_t !="O" and label_t == label_p:
+                    right_cnt += 1
+        right_ratio = right_cnt / labeled_cnt
 
-        true_pred_splitted = _split_into_word_list(true_predictions)
-        true_labels_splitted = _split_into_word_list(true_labels)
 
-        import pdb;pdb.set_trace()
+
+        true_pred_splitted_user = _split_into_word_list(true_predictions, split_target="USER")
+        true_labels_splitted_user = _split_into_word_list(true_labels, split_target="USER")
+        true_pred_splitted_other = _split_into_word_list(true_predictions, split_target="OTHER")
+        true_labels_splitted_other = _split_into_word_list(true_labels, split_target="OTHER")
+
         # 按照词片段
         results_piece = metric.compute(predictions=true_predictions, references=true_labels)
         # 按照标签
-        results_token_level = metric.compute(predictions=true_pred_splitted, references=true_labels_splitted)
+        results_token_level_user = metric.compute(predictions=true_pred_splitted_user, references=true_labels_splitted_user)
+        results_token_level_other = metric.compute(predictions=true_pred_splitted_other, references=true_labels_splitted_other)
+
         if data_args.return_entity_level_metrics:
             # Unpack nested dictionaries
             final_results = {}
@@ -1386,12 +1420,19 @@ def main():
                         final_results[f"word_piece_{key}_{n}"] = v
                 else:
                     final_results["word_piece_" + key] = value
-            for key, value in results_token_level.items():
+            for key, value in results_token_level_user.items():
                 if isinstance(value, dict):
                     for n, v in value.items():
                         final_results[f"token_level_{key}_{n}"] = v
                 else:
                     final_results["token_level_" + key] = value
+            for key, value in results_token_level_other.items():
+                if isinstance(value, dict):
+                    for n, v in value.items():
+                        final_results[f"token_level_{key}_{n}"] = v
+                else:
+                    final_results["token_level_" + key] = value
+            final_results["right_ratio"] = right_ratio
             return final_results
         else:
             return {
@@ -1425,14 +1466,6 @@ def main():
                                         training_args.lr_scheduler_type,
                                         custom_args.use_special_tokens_or_not,
                                       )
-    
-    print("**"*50)
-    print("**"*50)
-    print("**"*50)
-    print("**"*50)
-    print("**"*50)
-    print("**"*50)
-    print("**"*50)
 
     # Training
     if training_args.do_train:
